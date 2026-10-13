@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+# These are literal test-only values, present in the original test fixtures.
+# Do not allowlist a whole file, path, commit, or a real credential.
+[[allowlists]]
+description = "Known synthetic authentication secrets used only by tests"
+regexTarget = "secret"
+regexes = [
+  '''^test-secret-key-that-is-at-least-32-characters-long$''',
+  '''^test-jwt-secret-key-at-least-32-characters-long$'''
+]

@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Model caches
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Next.js
+.next/
+out/
+
+# Docker
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# MyPy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+about
+# Infrastructure state and credentials
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
+kubeconfig*
+*.kubeconfig
+k8s/secret*.yaml
+!k8s/secret.example.yaml
+helm/**/values.local.yaml
+monitoring/values.local.yaml
+.aws/
+.codex/
+.agents/
+evidence/private/
+.env.*
+!.env.example
