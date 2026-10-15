@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["images", "replicas", "secretName"],
+  "properties": {
+    "replicas": {
+      "type": "object",
+      "properties": {
+        "backend": {"type": "integer", "minimum": 2},
+        "frontend": {"type": "integer", "minimum": 2},
+        "worker": {"type": "integer", "minimum": 1}
+      }
+    },
+    "secretName": {"type": "string", "minLength": 1}
+  }
+}

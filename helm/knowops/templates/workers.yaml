@@ -1,0 +1,46 @@
+{{- range $component := list "worker" "reconciler" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "knowops.name" $ }}-{{ $component }}
+  labels:
+    {{- include "knowops.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ if eq $component "worker" }}{{ $.Values.replicas.worker }}{{ else }}1{{ end }}
+  selector:
+    matchLabels: { app: {{ include "knowops.name" $ }}-{{ $component }} }
+  template:
+    metadata:
+      labels: { app: {{ include "knowops.name" $ }}-{{ $component }} }
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") $ | sha256sum }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: false
+      securityContext: { runAsUser: 10001, runAsGroup: 10001, fsGroup: 10001 }
+      initContainers:
+        {{- include "knowops.wait" $ | nindent 8 }}
+      containers:
+        - name: {{ $component }}
+          image: "{{ $.Values.images.backend.repository }}:{{ $.Values.images.backend.tag }}"
+          imagePullPolicy: {{ $.Values.images.backend.pullPolicy }}
+          {{- if eq $component "worker" }}
+          command: [celery, -A, app.services.queue.celery_app, worker, --loglevel=info, --concurrency=1]
+          {{- else }}
+          command: [python, -m, app.services.queue.reconcile]
+          {{- end }}
+          envFrom:
+            - configMapRef: { name: {{ include "knowops.name" $ }}-config }
+            - secretRef: { name: {{ $.Values.secretName }} }
+          securityContext:
+            {{- include "knowops.security" $ | nindent 12 }}
+          resources: {{ toYaml $.Values.resources.worker | nindent 12 }}
+          volumeMounts:
+            - { name: cache, mountPath: /home/knowops/.cache }
+      volumes:
+        - name: cache
+          emptyDir: {}
+---
+{{- end }}

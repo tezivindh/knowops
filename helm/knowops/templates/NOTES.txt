@@ -1,0 +1,8 @@
+KnowOps deployed to {{ .Release.Namespace }}.
+Application: http://{{ .Values.ingress.host }}
+
+kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+helm list -n {{ .Release.Namespace }}
+
+The frontend includes Nginx and a Next.js server container to preserve dynamic routes.
+Prometheus can scrape the backend Service at /metrics without exposing metrics publicly.

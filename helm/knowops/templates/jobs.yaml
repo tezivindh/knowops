@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "knowops.name" . }}-migrate-{{ .Release.Revision }}
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: 86400
+  backoffLimit: 5
+  template:
+    metadata:
+      labels: { app: {{ include "knowops.name" . }}-migrate }
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: false
+      restartPolicy: OnFailure
+      securityContext: { runAsUser: 10001, runAsGroup: 10001 }
+      containers:
+        - name: migrate
+          image: "{{ .Values.images.backend.repository }}:{{ .Values.images.backend.tag }}"
+          imagePullPolicy: {{ .Values.images.backend.pullPolicy }}
+          command: [python, scripts/migrate.py]
+          envFrom:
+            - configMapRef: { name: {{ include "knowops.name" . }}-config }
+            - secretRef: { name: {{ .Values.secretName }} }
+          securityContext:
+            {{- include "knowops.security" . | nindent 12 }}
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 384Mi }

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "knowops.name" . }}-backend
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas.backend }}
+  selector:
+    matchLabels: { app: {{ include "knowops.name" . }}-backend }
+  template:
+    metadata:
+      labels:
+        app: {{ include "knowops.name" . }}-backend
+        {{- include "knowops.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: false
+      securityContext: { runAsUser: 10001, runAsGroup: 10001, fsGroup: 10001 }
+      initContainers:
+        {{- include "knowops.wait" . | nindent 8 }}
+      containers:
+        - name: backend
+          image: "{{ .Values.images.backend.repository }}:{{ .Values.images.backend.tag }}"
+          imagePullPolicy: {{ .Values.images.backend.pullPolicy }}
+          ports: [{ name: http, containerPort: 8000 }]
+          envFrom:
+            - configMapRef: { name: {{ include "knowops.name" . }}-config }
+            - secretRef: { name: {{ .Values.secretName }} }
+          securityContext:
+            {{- include "knowops.security" . | nindent 12 }}
+          resources: {{ toYaml .Values.resources.backend | nindent 12 }}
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            failureThreshold: 30
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          readinessProbe:
+            httpGet: { path: /ready, port: http }
+            timeoutSeconds: 5
+          volumeMounts:
+            - { name: cache, mountPath: /home/knowops/.cache }
+      volumes:
+        - name: cache
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "knowops.name" . }}-backend
+  labels:
+    app: {{ include "knowops.name" . }}-backend
+    {{- include "knowops.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector: { app: {{ include "knowops.name" . }}-backend }
+  ports: [{ name: http, port: 8000, targetPort: http }]

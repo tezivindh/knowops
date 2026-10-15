@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "knowops.name" . }}-frontend
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas.frontend }}
+  selector:
+    matchLabels: { app: {{ include "knowops.name" . }}-frontend }
+  template:
+    metadata:
+      labels: { app: {{ include "knowops.name" . }}-frontend }
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: false
+      containers:
+        - name: nginx
+          image: "{{ .Values.images.frontend.repository }}:{{ .Values.images.frontend.tag }}"
+          imagePullPolicy: {{ .Values.images.frontend.pullPolicy }}
+          command: [nginx, "-g", "daemon off;"]
+          ports: [{ name: http, containerPort: 8080 }]
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            {{- include "knowops.security" . | nindent 12 }}
+          resources: {{ toYaml .Values.resources.nginx | nindent 12 }}
+          readinessProbe:
+            httpGet: { path: /login, port: http }
+          livenessProbe:
+            httpGet: { path: /nginx-health, port: http }
+          volumeMounts:
+            - { name: nginx, mountPath: /etc/nginx/conf.d, readOnly: true }
+        - name: next
+          image: "{{ .Values.images.next.repository }}:{{ .Values.images.next.tag }}"
+          imagePullPolicy: {{ .Values.images.next.pullPolicy }}
+          ports: [{ name: next, containerPort: 3001 }]
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            {{- include "knowops.security" . | nindent 12 }}
+          resources: {{ toYaml .Values.resources.next | nindent 12 }}
+          readinessProbe:
+            httpGet: { path: /login, port: next }
+          startupProbe:
+            httpGet: { path: /login, port: next }
+            failureThreshold: 30
+            periodSeconds: 5
+      volumes:
+        - name: nginx
+          configMap: { name: {{ include "knowops.name" . }}-nginx }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "knowops.name" . }}-frontend
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector: { app: {{ include "knowops.name" . }}-frontend }
+  ports: [{ name: http, port: 80, targetPort: http }]

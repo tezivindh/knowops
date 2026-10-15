@@ -1,0 +1,20 @@
+{{- if .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "knowops.name" . }}-backend
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+    {{- toYaml .Values.metrics.serviceMonitor.labels | nindent 4 }}
+spec:
+  selector:
+    matchLabels: { app: {{ include "knowops.name" . }}-backend }
+  namespaceSelector:
+    matchNames: [{{ .Release.Namespace }}]
+  jobLabel: app
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+{{- end }}

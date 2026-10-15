@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "knowops.name" . }}-config
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  REDIS_URL: "redis://{{ include "knowops.name" . }}-redis:6379/0"
+  CELERY_BROKER_URL: "redis://{{ include "knowops.name" . }}-redis:6379/1"
+  CELERY_RESULT_BACKEND: "redis://{{ include "knowops.name" . }}-redis:6379/2"
+  MINIO_ENDPOINT: "{{ include "knowops.name" . }}-minio:9000"
+  QDRANT_HOST: "{{ include "knowops.name" . }}-qdrant"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "knowops.name" . }}-nginx
+  labels:
+    {{- include "knowops.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      server_name _;
+      server_tokens off;
+      client_max_body_size 51m;
+      location = /nginx-health { access_log off; return 200 'ok'; }
+      location = /metrics { return 404; }
+      location /api/ {
+        proxy_pass http://{{ include "knowops.name" . }}-backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+        proxy_request_buffering off;
+      }
+      location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+      }
+    }
