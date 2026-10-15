@@ -1,0 +1,10 @@
+aws_region         = "ap-south-1"
+project_name       = "knowops"
+kubernetes_version = "1.34"
+node_desired_size  = 2
+node_instance_types = ["t3.large"]
+# Replace with your public IP /32 and the self-hosted deployment runner's CIDR.
+admin_cidrs = ["203.0.113.10/32"]
+github_repository = "tezivindh/knowops"
+# Only one GitHub OIDC provider can exist per AWS account.
+create_github_oidc_provider = true
