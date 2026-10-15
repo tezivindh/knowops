@@ -1,0 +1,210 @@
+name: KnowOps capstone
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: capstone-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: knowops
+          POSTGRES_PASSWORD: knowops
+          POSTGRES_DB: knowops_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U knowops" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: testing
+      SECRET_KEY: test-secret-key-that-is-at-least-32-characters-long
+      JWT_SECRET_KEY: test-jwt-secret-key-at-least-32-characters-long
+      DATABASE_URL: postgresql+asyncpg://knowops:knowops@localhost:5432/knowops_test
+      TEST_DATABASE_URL: postgresql+asyncpg://knowops:knowops@localhost:5432/knowops_test
+      LLM_API_KEY: test-key
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - run: pip install -r requirements-dev.txt
+      - name: Verify fresh Alembic migrations
+        run: alembic upgrade head
+      - name: Pytest quality gate
+        run: pytest -v --junitxml=test-results.xml
+      - run: ruff check app tests
+      - run: mypy app
+      - run: alembic check
+      - run: pip check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/test-results.xml
+
+  frontend-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_API_URL: ''
+
+  infrastructure-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.9.5'
+      - run: terraform -chdir=terraform fmt -check -recursive
+      - run: terraform -chdir=terraform init -backend=false -input=false
+      - run: terraform -chdir=terraform validate
+      - name: Offline infrastructure assertions (not an AWS deployment)
+        run: terraform -chdir=terraform test
+      - uses: azure/setup-helm@v4.3.0
+        with:
+          version: v3.17.3
+      - run: helm lint helm/knowops
+      - run: helm template knowops helm/knowops --namespace knowops > rendered.yaml
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check commit history for credentials
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.30.1 \
+            git /repo --config /repo/.gitleaks.toml --redact
+
+  images:
+    needs: [backend-tests, frontend-checks, infrastructure-checks, secret-scan]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: backend, context: backend, target: runtime }
+          - { image: frontend, context: frontend, target: runtime }
+          - { image: next, context: frontend, target: next-runtime }
+    steps:
+      - uses: actions/checkout@v4
+      - name: SHA image reference
+        id: image
+        shell: bash
+        run: echo "ref=ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.image }}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - name: Build tested source (publication waits for security scan)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          load: true
+          push: false
+          tags: ${{ steps.image.outputs.ref }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+      - name: Trivy HIGH/CRITICAL gate
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          mkdir -p security-results
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$PWD/security-results:/results" \
+            aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222 image --scanners vuln \
+            --severity HIGH,CRITICAL --exit-code 1 --format table \
+            --output /results/trivy-${{ matrix.image }}.txt "$IMAGE_REF"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-${{ matrix.image }}
+          path: security-results/
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish scanned SHA image
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: docker push "$IMAGE_REF"
+
+  deploy:
+    needs: images
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.CAPSTONE_DEPLOY_ENABLED == 'true'
+    runs-on: [self-hosted, linux, knowops-deploy]
+    environment: capstone
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: knowops-deployment
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Connect to EKS
+        env:
+          EKS_CLUSTER: ${{ vars.EKS_CLUSTER_NAME }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
+      - name: Deploy this exact Git revision
+        env:
+          APP_HOST: ${{ vars.CAPSTONE_HOST }}
+          STORAGE_CLASS: ${{ vars.STORAGE_CLASS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          repository="ghcr.io/${GITHUB_REPOSITORY,,}"
+          helm upgrade --install knowops helm/knowops --namespace knowops \
+            --set-string images.backend.repository="$repository/backend" \
+            --set-string images.frontend.repository="$repository/frontend" \
+            --set-string images.next.repository="$repository/next" \
+            --set-string images.backend.tag="$GITHUB_SHA" \
+            --set-string images.frontend.tag="$GITHUB_SHA" \
+            --set-string images.next.tag="$GITHUB_SHA" \
+            --set-string ingress.host="$APP_HOST" \
+            --set-string persistence.storageClass="${STORAGE_CLASS:-gp3}" \
+            --set metrics.serviceMonitor.enabled=true \
+            --wait --wait-for-jobs --timeout 15m --atomic
+          kubectl rollout status deployment/knowops-backend -n knowops --timeout=5m
+          kubectl rollout status deployment/knowops-frontend -n knowops --timeout=5m
+          kubectl get pods,svc,ingress -n knowops
