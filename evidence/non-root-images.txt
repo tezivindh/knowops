@@ -1,0 +1,3 @@
+knowops-backend:local user=10001:10001
+knowops-frontend:local user=101:101
+knowops-next:local user=10001:10001

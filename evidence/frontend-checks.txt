@@ -1,0 +1,33 @@
+
+> frontend@0.1.0 test
+> node --test tests/*.test.cjs
+
+TAP version 13
+# Subtest: normal glob expansion still works
+ok 1 - normal glob expansion still works
+  ---
+  duration_ms: 2.540912
+  ...
+# Subtest: deep brace and parenthesis patterns are rejected before recursive processing
+ok 2 - deep brace and parenthesis patterns are rejected before recursive processing
+  ---
+  duration_ms: 2.082152
+  ...
+# Subtest: two tabs rotate a shared refresh token only once
+ok 3 - two tabs rotate a shared refresh token only once
+  ---
+  duration_ms: 156.138353
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 344.181669
+
+> frontend@0.1.0 lint
+> eslint
+

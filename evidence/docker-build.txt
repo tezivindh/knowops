@@ -1,0 +1,614 @@
+Compose now can delegate build to bake for better performances
+Just set COMPOSE_BAKE=true
+#0 building with "default" instance using docker driver
+
+#1 [next internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.32kB done
+#1 DONE 0.0s
+
+#2 [backend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.58kB done
+#2 DONE 0.0s
+
+#3 [backend internal] load metadata for cgr.dev/chainguard/wolfi-base@sha256:256c88bb066424045021090932d50be93c8e3f2ce3586707702a401b146f3e43
+#3 DONE 0.0s
+
+#4 [backend internal] load .dockerignore
+#4 transferring context: 163B done
+#4 DONE 0.0s
+
+#5 [backend python-base 1/2] FROM cgr.dev/chainguard/wolfi-base@sha256:256c88bb066424045021090932d50be93c8e3f2ce3586707702a401b146f3e43
+#5 resolve cgr.dev/chainguard/wolfi-base@sha256:256c88bb066424045021090932d50be93c8e3f2ce3586707702a401b146f3e43 done
+#5 DONE 0.0s
+
+#6 [backend internal] load build context
+#6 transferring context: 22.82kB 0.0s done
+#6 DONE 0.0s
+
+#7 [backend python-base 2/2] RUN apk add --no-cache python-3.12 libgomp libstdc++     && mkdir -p /home/knowops/.cache/fastembed     && chown -R 10001:10001 /home/knowops
+#7 CACHED
+
+#8 [backend builder 1/6] WORKDIR /build
+#8 CACHED
+
+#9 [backend builder 2/6] RUN apk add --no-cache py3.12-pip build-base     && python3.12 -m venv /opt/venv
+#9 CACHED
+
+#10 [backend builder 3/6] COPY pyproject.toml requirements.txt requirements-dev.txt ./
+#10 DONE 0.0s
+
+#11 [backend builder 4/6] RUN python -c "import subprocess,tomllib; subprocess.check_call(['pip', 'install', '--no-cache-dir', *tomllib.load(open('pyproject.toml', 'rb'))['project']['dependencies']])"
+#11 ...
+
+#12 [next internal] load metadata for docker.io/library/node:22-alpine
+#12 DONE 0.9s
+
+#13 [next internal] load .dockerignore
+#13 transferring context: 121B done
+#13 DONE 0.0s
+
+#14 [next build 1/7] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#14 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 done
+#14 DONE 0.0s
+
+#15 [next internal] load build context
+#15 transferring context: 630.57kB 0.0s done
+#15 DONE 0.0s
+
+#16 [next build 5/7] RUN npm ci
+#16 CACHED
+
+#17 [next next-runtime 6/7] COPY --from=build --chown=10001:10001 /build/.next/static ./.next/static
+#17 CACHED
+
+#18 [next next-runtime 5/7] COPY --from=build --chown=10001:10001 /build/.next/standalone ./
+#18 CACHED
+
+#19 [next next-runtime 3/7] RUN addgroup -g 10001 knowops && adduser -D -u 10001 -G knowops knowops
+#19 CACHED
+
+#20 [next build 2/7] WORKDIR /build
+#20 CACHED
+
+#21 [next build 6/7] COPY . .
+#21 CACHED
+
+#22 [next build 3/7] COPY package*.json ./
+#22 CACHED
+
+#23 [next next-runtime 4/7] WORKDIR /app
+#23 CACHED
+
+#24 [next build 7/7] RUN mkdir -p public && npm run build
+#24 CACHED
+
+#25 [next build 4/7] COPY scripts/patch-braces.cjs ./scripts/patch-braces.cjs
+#25 CACHED
+
+#26 [next next-runtime 2/7] RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn*     /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn* /usr/local/bin/corepack
+#26 CACHED
+
+#27 [next next-runtime 7/7] COPY --from=build --chown=10001:10001 /build/public ./public
+#27 CACHED
+
+#28 [next] exporting to image
+#28 exporting layers 0.0s done
+#28 exporting manifest sha256:d24e91e7a78699e94c47ea023502a27ea07ad275057129f7b3f3b978dd687612 done
+#28 exporting config sha256:ca4dbe246d1165423b8a6a05ad3b22c74233f6cb1899b59f5c5411edd0353e15 done
+#28 exporting attestation manifest sha256:71855f1d58e98446d6053e70ca4b8d4b605087e0ebbf0b72108bb766d8868afb done
+#28 exporting manifest list sha256:89c1fb06ecb40a3159f8125d2233b14c3fc1254f0203be3bff56266746610c16 done
+#28 naming to docker.io/library/knowops-next:local
+#28 naming to docker.io/library/knowops-next:local done
+#28 unpacking to docker.io/library/knowops-next:local done
+#28 DONE 0.1s
+
+#29 [next] resolving provenance for metadata file
+#29 DONE 0.0s
+
+#11 [backend builder 4/6] RUN python -c "import subprocess,tomllib; subprocess.check_call(['pip', 'install', '--no-cache-dir', *tomllib.load(open('pyproject.toml', 'rb'))['project']['dependencies']])"
+#11 0.990 Collecting fastapi>=0.115.0 (from fastapi[standard]>=0.115.0)
+#11 1.112   Downloading fastapi-0.143.3-py3-none-any.whl.metadata (26 kB)
+#11 1.186 Collecting uvicorn>=0.32.0 (from uvicorn[standard]>=0.32.0)
+#11 1.202   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#11 1.608 Collecting sqlalchemy>=2.0.36 (from sqlalchemy[asyncio]>=2.0.36)
+#11 1.633   Downloading sqlalchemy-2.1.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+#11 1.695 Collecting asyncpg>=0.30.0
+#11 1.728   Downloading asyncpg-0.32.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (4.4 kB)
+#11 1.764 Collecting alembic>=1.14.0
+#11 1.789   Downloading alembic-1.20.0-py3-none-any.whl.metadata (7.3 kB)
+#11 1.918 Collecting pydantic>=2.10.0
+#11 1.967   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#11 2.077 Collecting pydantic-settings>=2.6.0
+#11 2.098   Downloading pydantic_settings-2.16.0-py3-none-any.whl.metadata (4.0 kB)
+#11 2.128 Collecting PyJWT<3,>=2.15.1 (from PyJWT[crypto]<3,>=2.15.1)
+#11 2.147   Downloading pyjwt-2.15.1-py3-none-any.whl.metadata (3.5 kB)
+#11 2.171 Collecting passlib>=1.7.4 (from passlib[bcrypt]>=1.7.4)
+#11 2.192   Downloading passlib-1.7.4-py2.py3-none-any.whl.metadata (1.7 kB)
+#11 2.252 Collecting bcrypt>=4.2.0
+#11 2.288   Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)
+#11 2.338 Collecting celery>=5.4.0 (from celery[redis]>=5.4.0)
+#11 2.352   Downloading celery-5.6.3-py3-none-any.whl.metadata (23 kB)
+#11 2.412 Collecting redis>=5.2.0
+#11 2.433   Downloading redis-8.1.0-py3-none-any.whl.metadata (16 kB)
+#11 2.482 Collecting minio>=7.2.0
+#11 2.528   Downloading minio-7.2.20-py3-none-any.whl.metadata (6.5 kB)
+#11 2.573 Collecting qdrant-client<1.13,>=1.12.0
+#11 2.608   Downloading qdrant_client-1.12.2-py3-none-any.whl.metadata (10 kB)
+#11 2.686 Collecting openai>=1.55.0
+#11 2.728   Downloading openai-3.31.0-py3-none-any.whl.metadata (44 kB)
+#11 2.804 Collecting tiktoken>=0.8.0
+#11 2.849   Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.7 kB)
+#11 2.881 Collecting fastembed>=0.4.0
+#11 2.917   Downloading fastembed-0.9.0-py3-none-any.whl.metadata (11 kB)
+#11 2.947 Collecting python-multipart>=0.0.18
+#11 2.967   Downloading python_multipart-0.0.32-py3-none-any.whl.metadata (2.1 kB)
+#11 3.030 Collecting pypdf>=5.1.0
+#11 3.094   Downloading pypdf-6.21.0-py3-none-any.whl.metadata (7.6 kB)
+#11 3.126 Collecting python-docx>=1.1.0
+#11 3.169   Downloading python_docx-1.2.0-py3-none-any.whl.metadata (2.0 kB)
+#11 3.225 Collecting chardet>=5.2.0
+#11 3.247   Downloading chardet-7.6.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.6 kB)
+#11 3.295 Collecting python-ulid>=3.0.0
+#11 3.317   Downloading python_ulid-4.0.1-py3-none-any.whl.metadata (8.8 kB)
+#11 3.352 Collecting structlog>=24.4.0
+#11 3.367   Downloading structlog-26.1.0-py3-none-any.whl.metadata (9.7 kB)
+#11 3.407 Collecting httpx>=0.28.0
+#11 3.422   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#11 3.455 Collecting prometheus-client<1,>=0.22.0
+#11 3.477   Downloading prometheus_client-0.26.0-py3-none-any.whl.metadata (2.1 kB)
+#11 4.083 Collecting grpcio>=1.41.0 (from qdrant-client<1.13,>=1.12.0)
+#11 4.128   Downloading grpcio-1.84.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.8 kB)
+#11 4.838 Collecting grpcio-tools>=1.41.0 (from qdrant-client<1.13,>=1.12.0)
+#11 4.889   Downloading grpcio_tools-1.84.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.3 kB)
+#11 5.175 Collecting numpy>=1.26 (from qdrant-client<1.13,>=1.12.0)
+#11 5.207   Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#11 5.242 Collecting portalocker<3.0.0,>=2.7.0 (from qdrant-client<1.13,>=1.12.0)
+#11 5.263   Downloading portalocker-2.10.1-py3-none-any.whl.metadata (8.5 kB)
+#11 5.305 Collecting urllib3<3,>=1.26.14 (from qdrant-client<1.13,>=1.12.0)
+#11 5.323   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#11 5.573 Collecting cryptography>=3.4.0 (from PyJWT[crypto]<3,>=2.15.1)
+#11 5.607   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+#11 5.654 Collecting starlette>=0.46.0 (from fastapi>=0.115.0->fastapi[standard]>=0.115.0)
+#11 5.672   Downloading starlette-1.8.0-py3-none-any.whl.metadata (6.6 kB)
+#11 5.711 Collecting typing-extensions>=4.8.0 (from fastapi>=0.115.0->fastapi[standard]>=0.115.0)
+#11 5.727   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#11 5.754 Collecting typing-inspection>=0.4.2 (from fastapi>=0.115.0->fastapi[standard]>=0.115.0)
+#11 5.778   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#11 6.089 Collecting annotated-doc>=0.0.2 (from fastapi>=0.115.0->fastapi[standard]>=0.115.0)
+#11 6.108   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#11 6.144 Collecting opentelemetry-api>=1.44.0 (from fastapi>=0.115.0->fastapi[standard]>=0.115.0)
+#11 6.162   Downloading opentelemetry_api-1.45.1-py3-none-any.whl.metadata (1.4 kB)
+#11 6.195 Collecting click>=7.0 (from uvicorn>=0.32.0->uvicorn[standard]>=0.32.0)
+#11 6.247   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#11 6.275 Collecting h11>=0.8 (from uvicorn>=0.32.0->uvicorn[standard]>=0.32.0)
+#11 6.293   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#11 6.323 Collecting Mako (from alembic>=1.14.0)
+#11 6.343   Downloading mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+#11 6.370 Collecting annotated-types>=0.6.0 (from pydantic>=2.10.0)
+#11 6.408   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#11 7.299 Collecting pydantic-core==2.50.1 (from pydantic>=2.10.0)
+#11 7.367   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+#11 7.401 Collecting python-dotenv>=1.2.2 (from pydantic-settings>=2.6.0)
+#11 7.422   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#11 7.462 Collecting billiard<5.0,>=4.2.1 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.488   Downloading billiard-4.3.1-py3-none-any.whl.metadata (5.0 kB)
+#11 7.522 Collecting kombu>=5.6.0 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.567   Downloading kombu-5.6.2-py3-none-any.whl.metadata (3.5 kB)
+#11 7.596 Collecting vine<6.0,>=5.1.0 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.623   Downloading vine-5.1.0-py3-none-any.whl.metadata (2.7 kB)
+#11 7.645 Collecting click-didyoumean>=0.3.0 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.669   Downloading click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+#11 7.699 Collecting click-repl>=0.2.0 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.728   Downloading click_repl-0.4.1-py3-none-any.whl.metadata (3.7 kB)
+#11 7.755 Collecting click-plugins>=1.1.1 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.797   Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata (6.5 kB)
+#11 7.831 Collecting python-dateutil>=2.8.2 (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.848   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#11 7.882 Collecting tzlocal (from celery>=5.4.0->celery[redis]>=5.4.0)
+#11 7.898   Downloading tzlocal-5.4.4-py3-none-any.whl.metadata (7.7 kB)
+#11 7.945 Collecting argon2-cffi (from minio>=7.2.0)
+#11 7.968   Downloading argon2_cffi-25.1.0-py3-none-any.whl.metadata (4.1 kB)
+#11 8.000 Collecting certifi (from minio>=7.2.0)
+#11 8.017   Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+#11 8.131 Collecting pycryptodome (from minio>=7.2.0)
+#11 8.168   Downloading pycryptodome-4.0.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.8 kB)
+#11 8.202 Collecting anyio<5,>=4.10.0 (from openai>=1.55.0)
+#11 8.222   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#11 8.250 Collecting httpx2<3,>=2.12.0 (from openai>=1.55.0)
+#11 8.274   Downloading httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+#11 8.745 Collecting jiter<1,>=0.16.0 (from openai>=1.55.0)
+#11 8.773   Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+#11 8.799 Collecting sniffio (from openai>=1.55.0)
+#11 8.823   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+#11 8.857 Collecting idna>=2.8 (from anyio<5,>=4.10.0->openai>=1.55.0)
+#11 8.873   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#11 8.925 Collecting httpcore2==2.13.1 (from httpx2<3,>=2.12.0->openai>=1.55.0)
+#11 8.943   Downloading httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+#11 8.984 Collecting truststore>=0.10 (from httpx2<3,>=2.12.0->openai>=1.55.0)
+#11 9.010   Downloading truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+#11 9.540 Collecting regex (from tiktoken>=0.8.0)
+#11 9.613   Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+#11 9.665 Collecting requests (from tiktoken>=0.8.0)
+#11 9.682   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#11 9.746 Collecting huggingface-hub<2.0,>=0.20 (from fastembed>=0.4.0)
+#11 9.768   Downloading huggingface_hub-1.33.0-py3-none-any.whl.metadata (16 kB)
+#11 9.801 Collecting loguru<0.8.0,>=0.7.2 (from fastembed>=0.4.0)
+#11 9.823   Downloading loguru-0.7.3-py3-none-any.whl.metadata (22 kB)
+#11 9.894 Collecting mmh3<6.0.0,>=4.1.0 (from fastembed>=0.4.0)
+#11 9.918   Downloading mmh3-5.3.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (13 kB)
+#11 10.01 Collecting onnxruntime!=1.20.0,!=1.24.0,!=1.24.1,>=1.17.0 (from fastembed>=0.4.0)
+#11 10.05   Downloading onnxruntime-1.31.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (5.7 kB)
+#11 10.28 Collecting pillow<13.0,>=10.3.0 (from fastembed>=0.4.0)
+#11 10.33   Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+#11 10.37 Collecting py-rust-stemmers<0.2.0,>=0.1.0 (from fastembed>=0.4.0)
+#11 10.41   Downloading py_rust_stemmers-0.1.8-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (3.5 kB)
+#11 10.65 Collecting tokenizers<1.0,>=0.15 (from fastembed>=0.4.0)
+#11 10.69   Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+#11 10.74 Collecting tqdm<5.0,>=4.66 (from fastembed>=0.4.0)
+#11 10.77   Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+#11 10.83 Collecting filelock>=3.10.0 (from huggingface-hub<2.0,>=0.20->fastembed>=0.4.0)
+#11 10.89   Downloading filelock-4.2.0-py3-none-any.whl.metadata (2.0 kB)
+#11 10.94 Collecting fsspec>=2023.5.0 (from huggingface-hub<2.0,>=0.20->fastembed>=0.4.0)
+#11 10.97   Downloading fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+#11 11.08 Collecting hf-xet<2.0.0,>=1.6.0 (from huggingface-hub<2.0,>=0.20->fastembed>=0.4.0)
+#11 11.13   Downloading hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#11 11.16 Collecting packaging>=20.9 (from huggingface-hub<2.0,>=0.20->fastembed>=0.4.0)
+#11 11.18   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#11 11.23 Collecting pyyaml>=5.1 (from huggingface-hub<2.0,>=0.20->fastembed>=0.4.0)
+#11 11.29   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#11 11.33 Collecting httpcore==1.* (from httpx>=0.28.0)
+#11 11.35   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#11 11.49 Collecting charset_normalizer<4,>=2 (from requests->tiktoken>=0.8.0)
+#11 11.53   Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#11 11.83 Collecting lxml>=3.1.0 (from python-docx>=1.1.0)
+#11 11.89   Downloading lxml-6.1.3-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (3.3 kB)
+#11 11.94 Collecting prompt_toolkit>=3.0.36 (from click-repl>=0.2.0->celery>=5.4.0->celery[redis]>=5.4.0)
+#11 11.96   Downloading prompt_toolkit-3.0.53-py3-none-any.whl.metadata (6.4 kB)
+#11 12.07 Collecting cffi>=2.0.0 (from cryptography>=3.4.0->PyJWT[crypto]<3,>=2.15.1)
+#11 12.13   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+#11 12.16 Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->PyJWT[crypto]<3,>=2.15.1)
+#11 12.17   Downloading pycparser-3.11-py3-none-any.whl.metadata (8.2 kB)
+#11 12.26 Collecting opentelemetry-sdk>=1.44.0 (from fastapi[standard]>=0.115.0)
+#11 12.29   Downloading opentelemetry_sdk-1.45.1-py3-none-any.whl.metadata (1.6 kB)
+#11 12.31 Collecting opentelemetry-exporter-otlp-proto-http>=1.44.0 (from fastapi[standard]>=0.115.0)
+#11 12.33   Downloading opentelemetry_exporter_otlp_proto_http-1.45.1-py3-none-any.whl.metadata (3.0 kB)
+#11 12.37 Collecting fastapi-cli>=0.0.32 (from fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 12.39   Downloading fastapi_cli-0.0.32-py3-none-any.whl.metadata (6.7 kB)
+#11 12.54 Collecting fastar>=0.9.0 (from fastapi[standard]>=0.115.0)
+#11 12.57   Downloading fastar-0.12.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+#11 12.97 Collecting jinja2>=3.1.5 (from fastapi[standard]>=0.115.0)
+#11 12.99   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#11 13.29 Collecting email-validator>=2.0.0 (from fastapi[standard]>=0.115.0)
+#11 13.31   Downloading email_validator-2.3.0-py3-none-any.whl.metadata (26 kB)
+#11 13.35 Collecting pydantic-extra-types>=2.0.0 (from fastapi[standard]>=0.115.0)
+#11 13.37   Downloading pydantic_extra_types-2.11.1-py3-none-any.whl.metadata (4.2 kB)
+#11 13.40 Collecting dnspython>=2.0.0 (from email-validator>=2.0.0->fastapi[standard]>=0.115.0)
+#11 13.42   Downloading dnspython-2.9.0-py3-none-any.whl.metadata (5.7 kB)
+#11 13.46 Collecting typer>=0.16.0 (from fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.47   Downloading typer-0.27.3-py3-none-any.whl.metadata (16 kB)
+#11 13.51 Collecting rich-toolkit>=0.14.8 (from fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.53   Downloading rich_toolkit-0.20.6-py3-none-any.whl.metadata (3.0 kB)
+#11 13.56 Collecting fastapi-cloud-cli>=0.1.1 (from fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.58   Downloading fastapi_cloud_cli-0.26.0-py3-none-any.whl.metadata (3.1 kB)
+#11 13.73 Collecting rignore>=0.5.1 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.77   Downloading rignore-0.8.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+#11 13.84 Collecting sentry-sdk>=2.20.0 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.89   Downloading sentry_sdk-2.72.0-py3-none-any.whl.metadata (11 kB)
+#11 13.92 Collecting detect-installer>=0.1.0 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 13.94   Downloading detect_installer-0.2.1-py3-none-any.whl.metadata (1.2 kB)
+#11 13.97 Collecting agent-detector>=1.1.0 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 14.01   Downloading agent_detector-2.0.0-py3-none-any.whl.metadata (6.6 kB)
+#11 14.19 Collecting protobuf<8.0.0,>=7.35.1 (from grpcio-tools>=1.41.0->qdrant-client<1.13,>=1.12.0)
+#11 14.25   Downloading protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+#11 14.36 Collecting setuptools>=77.0.1 (from grpcio-tools>=1.41.0->qdrant-client<1.13,>=1.12.0)
+#11 14.39   Downloading setuptools-84.0.0-py3-none-any.whl.metadata (6.6 kB)
+#11 14.67 Collecting h2<5,>=3 (from httpx[http2]>=0.20.0->qdrant-client<1.13,>=1.12.0)
+#11 14.69   Downloading h2-4.4.1-py3-none-any.whl.metadata (3.8 kB)
+#11 14.72 Collecting hyperframe<7,>=6.1 (from h2<5,>=3->httpx[http2]>=0.20.0->qdrant-client<1.13,>=1.12.0)
+#11 14.74   Downloading hyperframe-6.1.0-py3-none-any.whl.metadata (4.3 kB)
+#11 14.78 Collecting hpack<5,>=4.2 (from h2<5,>=3->httpx[http2]>=0.20.0->qdrant-client<1.13,>=1.12.0)
+#11 14.80   Downloading hpack-4.2.0-py3-none-any.whl.metadata (3.3 kB)
+#11 14.86 Collecting MarkupSafe>=2.0 (from jinja2>=3.1.5->fastapi[standard]>=0.115.0)
+#11 14.89   Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#11 14.99 Collecting amqp<6.0.0,>=5.1.1 (from kombu>=5.6.0->celery>=5.4.0->celery[redis]>=5.4.0)
+#11 15.01   Downloading amqp-5.4.1-py3-none-any.whl.metadata (9.4 kB)
+#11 15.04 Collecting tzdata>=2025.2 (from kombu>=5.6.0->celery>=5.4.0->celery[redis]>=5.4.0)
+#11 15.06   Downloading tzdata-2026.5-py2.py3-none-any.whl.metadata (1.4 kB)
+#11 15.10 Collecting flatbuffers (from onnxruntime!=1.20.0,!=1.24.0,!=1.24.1,>=1.17.0->fastembed>=0.4.0)
+#11 15.12   Downloading flatbuffers-25.12.19-py2.py3-none-any.whl.metadata (1.0 kB)
+#11 15.15 Collecting googleapis-common-protos~=1.52 (from opentelemetry-exporter-otlp-proto-http>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.17   Downloading googleapis_common_protos-1.75.5-py3-none-any.whl.metadata (8.5 kB)
+#11 15.21 Collecting opentelemetry-exporter-http-transport==0.66b1 (from opentelemetry-exporter-http-transport[requests]==0.66b1->opentelemetry-exporter-otlp-proto-http>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.24   Downloading opentelemetry_exporter_http_transport-0.66b1-py3-none-any.whl.metadata (2.3 kB)
+#11 15.26 Collecting opentelemetry-exporter-otlp-common==0.66b1 (from opentelemetry-exporter-otlp-proto-http>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.29   Downloading opentelemetry_exporter_otlp_common-0.66b1-py3-none-any.whl.metadata (1.9 kB)
+#11 15.33 Collecting opentelemetry-exporter-otlp-proto-common==1.45.1 (from opentelemetry-exporter-otlp-proto-http>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.36   Downloading opentelemetry_exporter_otlp_proto_common-1.45.1-py3-none-any.whl.metadata (1.8 kB)
+#11 15.40 Collecting opentelemetry-proto==1.45.1 (from opentelemetry-exporter-otlp-proto-http>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.42   Downloading opentelemetry_proto-1.45.1-py3-none-any.whl.metadata (2.3 kB)
+#11 15.49 Collecting opentelemetry-semantic-conventions==0.66b1 (from opentelemetry-sdk>=1.44.0->fastapi[standard]>=0.115.0)
+#11 15.51   Downloading opentelemetry_semantic_conventions-0.66b1-py3-none-any.whl.metadata (2.4 kB)
+#11 15.55 Collecting wcwidth>=0.1.4 (from prompt_toolkit>=3.0.36->click-repl>=0.2.0->celery>=5.4.0->celery[redis]>=5.4.0)
+#11 15.57   Downloading wcwidth-0.9.2-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (23 kB)
+#11 15.61 Collecting six>=1.5 (from python-dateutil>=2.8.2->celery>=5.4.0->celery[redis]>=5.4.0)
+#11 15.62   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+#11 15.93 Collecting rich>=13.7.1 (from rich-toolkit>=0.14.8->fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 15.95   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+#11 15.98 Collecting markdown-it-py>=2.2.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 16.00   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+#11 16.04 Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 16.06   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+#11 16.35 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 16.37   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#11 16.55 Collecting greenlet>=1 (from sqlalchemy[asyncio]>=2.0.36)
+#11 16.61   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+#11 16.65 Collecting shellingham>=1.3.0 (from typer>=0.16.0->fastapi-cli>=0.0.32->fastapi-cli[standard]>=0.0.32; extra == "standard"->fastapi[standard]>=0.115.0)
+#11 16.67   Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+#11 16.98 Collecting httptools>=0.8.0 (from uvicorn[standard]>=0.32.0)
+#11 17.00   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#11 17.32 Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.32.0)
+#11 17.35   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+#11 17.44 Collecting watchfiles>=0.20 (from uvicorn[standard]>=0.32.0)
+#11 17.49   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#11 17.69 Collecting websockets>=13.0 (from uvicorn[standard]>=0.32.0)
+#11 17.70   Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+#11 17.74 Collecting argon2-cffi-bindings (from argon2-cffi->minio>=7.2.0)
+#11 17.77   Downloading argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (7.5 kB)
+#11 17.78 Collecting redis>=5.2.0
+#11 17.80   Downloading redis-6.4.0-py3-none-any.whl.metadata (10 kB)
+#11 17.83 Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+#11 17.89 Downloading qdrant_client-1.12.2-py3-none-any.whl (267 kB)
+#11 18.06 Downloading prometheus_client-0.26.0-py3-none-any.whl (64 kB)
+#11 18.09 Downloading portalocker-2.10.1-py3-none-any.whl (18 kB)
+#11 18.13 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#11 18.20 Downloading fastapi-0.143.3-py3-none-any.whl (144 kB)
+#11 18.28 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#11 18.33 Downloading sqlalchemy-2.1.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.7 MB)
+#11 19.17    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 6.0 MB/s  0:00:00
+#11 19.19 Downloading asyncpg-0.32.0-cp312-cp312-manylinux_2_28_x86_64.whl (3.8 MB)
+#11 19.54    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 10.9 MB/s  0:00:00
+#11 19.56 Downloading alembic-1.20.0-py3-none-any.whl (268 kB)
+#11 19.59 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#11 19.66 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+#11 19.79    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 16.5 MB/s  0:00:00
+#11 19.81 Downloading pydantic_settings-2.16.0-py3-none-any.whl (80 kB)
+#11 19.85 Downloading passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+#11 19.89    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 525.6/525.6 kB 16.7 MB/s  0:00:00
+#11 19.92 Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl (278 kB)
+#11 19.97 Downloading celery-5.6.3-py3-none-any.whl (451 kB)
+#11 20.02 Downloading billiard-4.3.1-py3-none-any.whl (90 kB)
+#11 20.05 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#11 20.08 Downloading vine-5.1.0-py3-none-any.whl (9.6 kB)
+#11 20.10 Downloading minio-7.2.20-py3-none-any.whl (93 kB)
+#11 20.13 Downloading openai-3.31.0-py3-none-any.whl (2.2 MB)
+#11 20.32    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 11.6 MB/s  0:00:00
+#11 20.33 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#11 20.37 Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+#11 20.40 Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+#11 20.45 Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (345 kB)
+#11 20.49 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#11 20.55 Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl (1.2 MB)
+#11 20.67    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 9.7 MB/s  0:00:00
+#11 20.70 Downloading fastembed-0.9.0-py3-none-any.whl (142 kB)
+#11 20.74 Downloading huggingface_hub-1.33.0-py3-none-any.whl (846 kB)
+#11 20.78    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 846.4/846.4 kB 19.1 MB/s  0:00:00
+#11 20.81 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#11 20.87 Downloading hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+#11 21.24    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 11.1 MB/s  0:00:00
+#11 21.26 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#11 21.28 Downloading loguru-0.7.3-py3-none-any.whl (61 kB)
+#11 21.31 Downloading mmh3-5.3.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (103 kB)
+#11 21.33 Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+#11 21.66    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 20.9 MB/s  0:00:00
+#11 21.70 Downloading py_rust_stemmers-0.1.8-cp312-cp312-manylinux_2_28_x86_64.whl (323 kB)
+#11 21.74 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#11 21.77 Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+#11 21.81 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#11 21.85 Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+#11 22.03    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 18.2 MB/s  0:00:00
+#11 22.06 Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+#11 22.08 Downloading python_multipart-0.0.32-py3-none-any.whl (30 kB)
+#11 22.12 Downloading pypdf-6.21.0-py3-none-any.whl (405 kB)
+#11 22.18 Downloading python_docx-1.2.0-py3-none-any.whl (252 kB)
+#11 22.21 Downloading chardet-7.6.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.5 MB)
+#11 22.27    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 22.4 MB/s  0:00:00
+#11 22.30 Downloading python_ulid-4.0.1-py3-none-any.whl (14 kB)
+#11 22.32 Downloading structlog-26.1.0-py3-none-any.whl (73 kB)
+#11 22.36 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#11 22.41 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#11 22.42 Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+#11 22.45 Downloading click_didyoumean-0.3.1-py3-none-any.whl (3.6 kB)
+#11 22.49 Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl (11 kB)
+#11 22.51 Downloading click_repl-0.4.1-py3-none-any.whl (14 kB)
+#11 22.53 Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+#11 22.72    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 26.1 MB/s  0:00:00
+#11 22.73 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+#11 22.77 Downloading email_validator-2.3.0-py3-none-any.whl (35 kB)
+#11 22.80 Downloading dnspython-2.9.0-py3-none-any.whl (354 kB)
+#11 22.85 Downloading fastapi_cli-0.0.32-py3-none-any.whl (14 kB)
+#11 22.87 Downloading fastapi_cloud_cli-0.26.0-py3-none-any.whl (108 kB)
+#11 22.90 Downloading agent_detector-2.0.0-py3-none-any.whl (9.4 kB)
+#11 22.92 Downloading detect_installer-0.2.1-py3-none-any.whl (5.4 kB)
+#11 22.95 Downloading fastar-0.12.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (808 kB)
+#11 22.98    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 808.1/808.1 kB 30.4 MB/s  0:00:00
+#11 23.00 Downloading filelock-4.2.0-py3-none-any.whl (135 kB)
+#11 23.02 Downloading fsspec-2026.9.0-py3-none-any.whl (221 kB)
+#11 23.05 Downloading grpcio-1.84.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (7.2 MB)
+#11 23.36    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.2/7.2 MB 24.2 MB/s  0:00:00
+#11 23.38 Downloading grpcio_tools-1.84.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.8 MB)
+#11 23.53    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.8/2.8 MB 20.2 MB/s  0:00:00
+#11 23.56 Downloading protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl (343 kB)
+#11 23.60 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#11 23.63 Downloading h2-4.4.1-py3-none-any.whl (62 kB)
+#11 23.65 Downloading hpack-4.2.0-py3-none-any.whl (34 kB)
+#11 23.68 Downloading hyperframe-6.1.0-py3-none-any.whl (13 kB)
+#11 23.70 Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+#11 23.73 Downloading kombu-5.6.2-py3-none-any.whl (214 kB)
+#11 23.76 Downloading amqp-5.4.1-py3-none-any.whl (51 kB)
+#11 23.78 Downloading lxml-6.1.3-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+#11 24.01    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 23.3 MB/s  0:00:00
+#11 24.04 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#11 24.06 Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+#11 25.20    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 14.7 MB/s  0:00:01
+#11 25.23 Downloading onnxruntime-1.31.0-cp312-cp312-manylinux_2_28_x86_64.whl (23.8 MB)
+#11 26.51    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.8/23.8 MB 18.7 MB/s  0:00:01
+#11 26.53 Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+#11 26.56 Downloading opentelemetry_exporter_otlp_proto_http-1.45.1-py3-none-any.whl (22 kB)
+#11 26.59 Downloading opentelemetry_exporter_http_transport-0.66b1-py3-none-any.whl (12 kB)
+#11 26.61 Downloading opentelemetry_exporter_otlp_common-0.66b1-py3-none-any.whl (12 kB)
+#11 26.63 Downloading opentelemetry_exporter_otlp_proto_common-1.45.1-py3-none-any.whl (15 kB)
+#11 26.65 Downloading opentelemetry_proto-1.45.1-py3-none-any.whl (72 kB)
+#11 26.67 Downloading googleapis_common_protos-1.75.5-py3-none-any.whl (307 kB)
+#11 26.75 Downloading opentelemetry_sdk-1.45.1-py3-none-any.whl (140 kB)
+#11 26.78 Downloading opentelemetry_semantic_conventions-0.66b1-py3-none-any.whl (206 kB)
+#11 26.81 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#11 26.84 Downloading prompt_toolkit-3.0.53-py3-none-any.whl (392 kB)
+#11 26.89 Downloading pydantic_extra_types-2.11.1-py3-none-any.whl (79 kB)
+#11 26.93 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#11 26.97 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#11 26.99 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#11 27.03    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 24.7 MB/s  0:00:00
+#11 27.05 Downloading rich_toolkit-0.20.6-py3-none-any.whl (39 kB)
+#11 27.08 Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+#11 27.13 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#11 27.19    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 19.1 MB/s  0:00:00
+#11 27.21 Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+#11 27.26 Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#11 27.28 Downloading rignore-0.8.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (927 kB)
+#11 27.33    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 927.8/927.8 kB 26.1 MB/s  0:00:00
+#11 27.37 Downloading sentry_sdk-2.72.0-py3-none-any.whl (544 kB)
+#11 27.41    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 544.8/544.8 kB 14.7 MB/s  0:00:00
+#11 27.43 Downloading setuptools-84.0.0-py3-none-any.whl (818 kB)
+#11 27.48    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 818.2/818.2 kB 20.1 MB/s  0:00:00
+#11 27.50 Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+#11 27.52 Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+#11 27.58    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 10.0 MB/s  0:00:00
+#11 27.60 Downloading starlette-1.8.0-py3-none-any.whl (79 kB)
+#11 27.64 Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+#11 27.66 Downloading typer-0.27.3-py3-none-any.whl (123 kB)
+#11 27.69 Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+#11 27.71 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#11 27.73 Downloading tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+#11 27.77 Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+#11 27.81    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 21.1 MB/s  0:00:00
+#11 27.83 Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+#11 28.08    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 18.1 MB/s  0:00:00
+#11 28.10 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#11 28.14 Downloading wcwidth-0.9.2-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (769 kB)
+#11 28.19    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 769.8/769.8 kB 19.3 MB/s  0:00:00
+#11 28.21 Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+#11 28.25 Downloading argon2_cffi-25.1.0-py3-none-any.whl (14 kB)
+#11 28.28 Downloading argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (26 kB)
+#11 28.32 Downloading flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+#11 28.34 Downloading redis-6.4.0-py3-none-any.whl (279 kB)
+#11 28.39 Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+#11 28.41 Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+#11 28.43 Downloading pycryptodome-4.0.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.5 MB)
+#11 28.60    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.5/2.5 MB 14.9 MB/s  0:00:00
+#11 28.62 Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#11 28.69    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.8/807.8 kB 12.1 MB/s  0:00:00
+#11 28.72 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+#11 28.75 Downloading tzlocal-5.4.4-py3-none-any.whl (18 kB)
+#11 29.29 Installing collected packages: passlib, flatbuffers, websockets, wcwidth, vine, uvloop, urllib3, tzlocal, tzdata, typing-extensions, truststore, tqdm, structlog, sniffio, six, shellingham, setuptools, rignore, regex, redis, pyyaml, python-ulid, python-multipart, python-dotenv, pypdf, PyJWT, pygments, pycryptodome, pycparser, py-rust-stemmers, protobuf, prometheus-client, portalocker, pillow, packaging, numpy, mmh3, mdurl, MarkupSafe, lxml, loguru, jiter, idna, hyperframe, httptools, hpack, hf-xet, h11, greenlet, fsspec, filelock, fastar, dnspython, detect-installer, click, charset_normalizer, chardet, certifi, billiard, bcrypt, asyncpg, annotated-types, annotated-doc, agent-detector, uvicorn, typing-inspection, sqlalchemy, sentry-sdk, requests, python-docx, python-dateutil, pydantic-core, prompt_toolkit, opentelemetry-proto, opentelemetry-api, onnxruntime, markdown-it-py, Mako, jinja2, httpcore2, httpcore, h2, grpcio, googleapis-common-protos, email-validator, click-plugins, click-didyoumean, cffi, anyio, amqp, watchfiles, tiktoken, starlette, rich, pydantic, opentelemetry-semantic-conventions, opentelemetry-exporter-otlp-proto-common, opentelemetry-exporter-http-transport, kombu, httpx2, httpx, grpcio-tools, cryptography, click-repl, argon2-cffi-bindings, alembic, typer, rich-toolkit, pydantic-settings, pydantic-extra-types, opentelemetry-sdk, openai, huggingface-hub, fastapi, celery, argon2-cffi, tokenizers, qdrant-client, opentelemetry-exporter-otlp-common, minio, fastapi-cloud-cli, fastapi-cli, opentelemetry-exporter-otlp-proto-http, fastembed
+#11 41.14 
+#11 41.15 Successfully installed Mako-1.4.3 MarkupSafe-3.0.4 PyJWT-2.15.1 agent-detector-2.0.0 alembic-1.20.0 amqp-5.4.1 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 argon2-cffi-25.1.0 argon2-cffi-bindings-26.1.0 asyncpg-0.32.0 bcrypt-5.0.0 billiard-4.3.1 celery-5.6.3 certifi-2026.7.22 cffi-2.1.1 chardet-7.6.0 charset_normalizer-3.5.2 click-8.5.0 click-didyoumean-0.3.1 click-plugins-1.1.1.2 click-repl-0.4.1 cryptography-50.0.2 detect-installer-0.2.1 dnspython-2.9.0 email-validator-2.3.0 fastapi-0.143.3 fastapi-cli-0.0.32 fastapi-cloud-cli-0.26.0 fastar-0.12.0 fastembed-0.9.0 filelock-4.2.0 flatbuffers-25.12.19 fsspec-2026.9.0 googleapis-common-protos-1.75.5 greenlet-3.5.6 grpcio-1.84.0 grpcio-tools-1.84.0 h11-0.16.0 h2-4.4.1 hf-xet-1.7.0 hpack-4.2.0 httpcore-1.0.9 httpcore2-2.13.1 httptools-0.9.0 httpx-0.28.1 httpx2-2.13.1 huggingface-hub-1.33.0 hyperframe-6.1.0 idna-3.20 jinja2-3.1.6 jiter-0.17.0 kombu-5.6.2 loguru-0.7.3 lxml-6.1.3 markdown-it-py-4.2.0 mdurl-0.1.2 minio-7.2.20 mmh3-5.3.1 numpy-2.5.4 onnxruntime-1.31.0 openai-3.31.0 opentelemetry-api-1.45.1 opentelemetry-exporter-http-transport-0.66b1 opentelemetry-exporter-otlp-common-0.66b1 opentelemetry-exporter-otlp-proto-common-1.45.1 opentelemetry-exporter-otlp-proto-http-1.45.1 opentelemetry-proto-1.45.1 opentelemetry-sdk-1.45.1 opentelemetry-semantic-conventions-0.66b1 packaging-26.3 passlib-1.7.4 pillow-12.3.0 portalocker-2.10.1 prometheus-client-0.26.0 prompt_toolkit-3.0.53 protobuf-7.36.2 py-rust-stemmers-0.1.8 pycparser-3.11 pycryptodome-4.0.0 pydantic-2.14.1 pydantic-core-2.50.1 pydantic-extra-types-2.11.1 pydantic-settings-2.16.0 pygments-2.21.0 pypdf-6.21.0 python-dateutil-2.9.0.post0 python-docx-1.2.0 python-dotenv-1.2.4 python-multipart-0.0.32 python-ulid-4.0.1 pyyaml-6.0.3 qdrant-client-1.12.2 redis-6.4.0 regex-2026.9.29 requests-2.34.2 rich-15.0.0 rich-toolkit-0.20.6 rignore-0.8.1 sentry-sdk-2.72.0 setuptools-84.0.0 shellingham-1.5.4 six-1.17.0 sniffio-1.3.1 sqlalchemy-2.1.4 starlette-1.8.0 structlog-26.1.0 tiktoken-0.14.0 tokenizers-0.23.3 tqdm-4.70.1 truststore-0.10.5 typer-0.27.3 typing-extensions-4.16.0 typing-inspection-0.4.4 tzdata-2026.5 tzlocal-5.4.4 urllib3-2.8.0 uvicorn-0.54.0 uvloop-0.23.0 vine-5.1.0 watchfiles-1.3.0 wcwidth-0.9.2 websockets-17.2
+#11 DONE 41.7s
+
+#30 [backend builder 5/6] COPY . .
+#30 DONE 0.1s
+
+#31 [backend builder 6/6] RUN pip install --no-cache-dir --no-deps -r requirements.txt
+#31 0.569 Processing ./.
+#31 0.571   Installing build dependencies: started
+#31 1.881   Installing build dependencies: finished with status 'done'
+#31 1.882   Getting requirements to build wheel: started
+#31 2.189   Getting requirements to build wheel: finished with status 'done'
+#31 2.190   Preparing metadata (pyproject.toml): started
+#31 2.499   Preparing metadata (pyproject.toml): finished with status 'done'
+#31 2.502 Building wheels for collected packages: knowops-backend
+#31 2.502   Building wheel for knowops-backend (pyproject.toml): started
+#31 2.860   Building wheel for knowops-backend (pyproject.toml): finished with status 'done'
+#31 2.861   Created wheel for knowops-backend: filename=knowops_backend-0.1.0-py3-none-any.whl size=107455 sha256=d6d159fc1e98ac05e77036f4a760c04574251f60af8bd9bc2839e71e8e38b336
+#31 2.861   Stored in directory: /tmp/pip-ephem-wheel-cache-9c_ejopx/wheels/7f/5c/67/61a4ca28ccbc7df61f55a044560f100aa81c66ef20585de495
+#31 2.863 Successfully built knowops-backend
+#31 2.872 Installing collected packages: knowops-backend
+#31 2.941 Successfully installed knowops-backend-0.1.0
+#31 DONE 3.0s
+
+#32 [backend runtime 1/7] WORKDIR /app
+#32 CACHED
+
+#33 [backend runtime 2/7] COPY --from=builder /opt/venv /opt/venv
+#33 DONE 2.9s
+
+#34 [backend runtime 3/7] RUN python -m pip uninstall --yes pip
+#34 0.373 WARNING: The directory '/home/knowops/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+#34 0.446 Found existing installation: pip 26.2.1
+#34 0.472 Uninstalling pip-26.2.1:
+#34 0.595   Successfully uninstalled pip-26.2.1
+#34 DONE 0.6s
+
+#35 [backend runtime 4/7] COPY --chown=10001:10001 app ./app
+#35 DONE 0.1s
+
+#36 [backend runtime 5/7] COPY --chown=10001:10001 alembic ./alembic
+#36 DONE 0.0s
+
+#37 [backend runtime 6/7] COPY --chown=10001:10001 scripts ./scripts
+#37 DONE 0.0s
+
+#38 [backend runtime 7/7] COPY --chown=10001:10001 alembic.ini pyproject.toml ./
+#38 DONE 0.0s
+
+#39 [backend] exporting to image
+#39 exporting layers
+#39 exporting layers 7.7s done
+#39 exporting manifest sha256:6f7a4ceaa778efeb4d325aa802f98810cf52e3fdb0662f572a0e714ed8e99219 done
+#39 exporting config sha256:48178a37475c276b43a624b39c2d0863bdbd5f348fa0697f204839782483dd26 done
+#39 exporting attestation manifest sha256:90d1a71aa61ca35078fcdaffe7be5aa81db0cb63d0958c15d78fbe72ae1f5e54 done
+#39 exporting manifest list sha256:e7fcdb5bb241e40e6a5a82b8352aa56c2881aa3eaec09ba739cbeaf03c12339f done
+#39 naming to docker.io/library/knowops-backend:local done
+#39 unpacking to docker.io/library/knowops-backend:local
+#39 unpacking to docker.io/library/knowops-backend:local 1.8s done
+#39 DONE 9.5s
+
+#40 [backend] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [frontend internal] load build definition from Dockerfile
+#41 transferring dockerfile: 1.32kB done
+#41 DONE 0.0s
+
+#42 [frontend internal] load metadata for docker.io/nginxinc/nginx-unprivileged:stable-alpine
+#42 DONE 1.0s
+
+#43 [frontend internal] load .dockerignore
+#43 transferring context: 121B done
+#43 DONE 0.0s
+
+#44 [frontend internal] load build context
+#44 transferring context: 74B done
+#44 DONE 0.0s
+
+#45 [frontend runtime 1/2] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01
+#45 resolve docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01 done
+#45 DONE 0.0s
+
+#46 [frontend runtime 2/2] COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
+#46 CACHED
+
+#47 [frontend] exporting to image
+#47 exporting layers done
+#47 exporting manifest sha256:ebad2f95118ea7d50a9fbf7a798ce83cfab2c7f8b9ed0ab70f8087c023fe68f2 done
+#47 exporting config sha256:725317957ba7f8c211394aad529e739843fe586734888ec7b458d60aa8c9504b done
+#47 exporting attestation manifest sha256:517757dafd19c27b06082b464adf77a37b99afbabc0ba661564ab348aaa2c985 done
+#47 exporting manifest list sha256:70e5e28b6b39cc33babe3a8866c932b12cefead19058a38992864792158c7bd3 done
+#47 naming to docker.io/library/knowops-frontend:local done
+#47 unpacking to docker.io/library/knowops-frontend:local done
+#47 DONE 0.0s
+
+#48 [frontend] resolving provenance for metadata file
+#48 DONE 0.0s
+ backend  Built
+ frontend  Built
+ next  Built
