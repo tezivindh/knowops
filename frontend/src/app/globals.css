@@ -1,0 +1,297 @@
+@import "tailwindcss";
+
+/*
+ * KnowOps design tokens.
+ * Warm paper + ink, hairline rules, one accent. Status colours are muted and
+ * only ever used to carry meaning.
+ */
+:root {
+  --bg: #f6f5f1;
+  --surface: #fdfcfa;
+  --surface-2: #efede7;
+  --ink: #1d1c1a;
+  --ink-2: #4a4843;
+  --muted: #7a776f;
+  --rule: #e3e0d8;
+  --rule-strong: #cfcbc1;
+  --accent: #2f6a4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3eee7;
+  --focus: #2f6a4f;
+  --warn: #9a5b00;
+  --warn-soft: #f6ead6;
+  --danger: #a33a2c;
+  --danger-soft: #f6e1dc;
+  --info: #2d5b8a;
+  --info-soft: #e1e9f2;
+  --mark: #fbeeb8;
+  /* Motion tokens (curves from the emil-design-eng skill). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161513;
+    --surface: #1d1c1a;
+    --surface-2: #262522;
+    --ink: #ebe8e1;
+    --ink-2: #c3bfb5;
+    --muted: #8d897f;
+    --rule: #2f2d29;
+    --rule-strong: #403d38;
+    --accent: #79b896;
+    --accent-ink: #10201a;
+    --accent-soft: #1f3128;
+    --focus: #79b896;
+    --warn: #e0a95a;
+    --warn-soft: #362a17;
+    --danger: #e58a7c;
+    --danger-soft: #3a211d;
+    --info: #8fb4dc;
+    --info-soft: #1d2a38;
+    --mark: #4a3f17;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-mark: var(--mark);
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-serif: var(--font-serif), Georgia, serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--mark);
+  color: var(--ink);
+}
+
+/* In the base layer so utilities like focus-visible:outline-none can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Numbers line up in tables and counters. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Native <dialog> backdrop. */
+dialog::backdrop {
+  background: rgb(20 19 17 / 0.35);
+}
+
+dialog[open] {
+  animation: dialog-in 120ms ease-out;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Rendered assistant answers and AI summaries. */
+.prose-answer > * + * {
+  margin-top: 0.6em;
+}
+.prose-answer ul,
+.prose-answer ol {
+  padding-left: 1.25em;
+}
+.prose-answer ul {
+  list-style: disc;
+}
+.prose-answer ol {
+  list-style: decimal;
+}
+.prose-answer li + li {
+  margin-top: 0.2em;
+}
+.prose-answer li > ul,
+.prose-answer li > ol {
+  margin-top: 0.2em;
+}
+.prose-answer li > ul {
+  list-style: circle;
+}
+.prose-answer code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-2);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+.prose-answer pre {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--surface-2);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: pre;
+}
+.prose-answer pre code {
+  background: none;
+  padding: 0;
+}
+.prose-answer h3,
+.prose-answer h4 {
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+ * Landing page motion. Marketing-only: seen once per visit, so it may take
+ * longer than app UI. Everything here is transform/opacity/clip-path.
+ * ------------------------------------------------------------------------- */
+
+/* Headline words rise in, staggered via --i. */
+.word-in {
+  display: inline-block;
+  animation: word-in 700ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 80ms);
+}
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+    filter: blur(4px);
+  }
+}
+
+/* Fade + rise for supporting copy on first paint. */
+.fade-in {
+  animation: fade-in 600ms var(--ease-out) both;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Scroll reveal, toggled by <Reveal>. */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 700ms var(--ease-out),
+    transform 700ms var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Wipe a block into view from the left (used on document excerpts). */
+.wipe {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 900ms var(--ease-in-out);
+  transition-delay: var(--delay, 0ms);
+}
+.wipe[data-visible="true"] {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Press feedback for marketing buttons. */
+.press {
+  transition:
+    transform 160ms var(--ease-out),
+    opacity 160ms ease,
+    background-color 160ms ease;
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Highlighted figure inside a passage: a marker stroke drawn left to right. */
+.ink-mark {
+  background-image: linear-gradient(var(--mark), var(--mark));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 600ms var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+  border-radius: 2px;
+  padding: 0 0.1em;
+}
+[data-visible="true"] .ink-mark,
+.ink-mark[data-on="true"] {
+  background-size: 100% 100%;
+}
+
+/* Very light paper grain on the landing page only. */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-in,
+  .fade-in {
+    animation: fade-only 300ms ease both;
+  }
+  .reveal {
+    transform: none;
+  }
+  .wipe {
+    clip-path: none;
+  }
+}
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+}
