@@ -1,0 +1,19 @@
+# Local NodePorts also work on an EKS LoadBalancer service.
+service:
+  type: LoadBalancer
+ports:
+  web:
+    nodePort: 30080
+  websecure:
+    nodePort: 30443
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  name: traefik
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits: { cpu: 500m, memory: 192Mi }

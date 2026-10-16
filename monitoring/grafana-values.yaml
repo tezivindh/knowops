@@ -1,0 +1,14 @@
+# Merge AFTER prometheus-values.yaml; Grafana is a kube-prometheus-stack subchart.
+grafana:
+  service:
+    type: ClusterIP
+  grafana.ini:
+    users:
+      allow_sign_up: false
+    auth.anonymous:
+      enabled: false
+  sidecar:
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+      uid: prometheus
