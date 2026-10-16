@@ -7,6 +7,8 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  packages: write
+
 concurrency:
   group: capstone-${{ github.ref }}
   cancel-in-progress: false
